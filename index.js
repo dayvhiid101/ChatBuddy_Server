@@ -1,5 +1,4 @@
 const express = require("express");
-const app = express();
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const helmet = require("helmet");
@@ -10,6 +9,18 @@ const authRoute = require("./routes/auth");
 const postRoute = require("./routes/posts");
 const router = express.Router();
 const path = require("path");
+
+const app = express();
+app.use("/assets", express.static(path.join(__dirname, "public/assets")));
+
+// Middleware
+app.use(express.json());
+app.use(helmet());
+app.use(morgan("common"));
+
+app.use("/api/auth", authRoute);
+app.use("/api/users", userRoute);
+app.use("/api/posts", postRoute);
 
 dotenv.config();
 
@@ -26,12 +37,9 @@ dotenv.config();
   }
 })();
 
-app.use("/assets", express.static(path.join(__dirname, "public/assets")));
 
-// Middleware
-app.use(express.json());
-app.use(helmet());
-app.use(morgan("common"));
+const upload = multer({ storage: storage });
+
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -42,7 +50,6 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage: storage });
 
 app.post("/api/upload", upload.single("file"), (req, res) => {
   try {
@@ -52,9 +59,7 @@ app.post("/api/upload", upload.single("file"), (req, res) => {
   }
 });
 
-app.use("/api/auth", authRoute);
-app.use("/api/users", userRoute);
-app.use("/api/posts", postRoute);
+
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
