@@ -38,7 +38,7 @@ dotenv.config();
 })();
 
 
-const upload = multer({ storage: storage });
+
 
 
 const storage = multer.diskStorage({
@@ -49,6 +49,7 @@ const storage = multer.diskStorage({
     cb(null, req.body.name);
   },
 });
+const upload = multer({ storage: storage });
 
 
 app.post("/api/upload", upload.single("file"), (req, res) => {
